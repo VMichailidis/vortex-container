@@ -1,0 +1,5 @@
+*
+!.gitignore
+!justfile
+!Dockerfile
+!entrypoint.sh
