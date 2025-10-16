@@ -36,7 +36,7 @@ RUN apt-get upgrade && apt-get update
 RUN apt-get install -y cmake
 
 # Clone the Vortex repository
-RUN git clone --depth=1 --recursive https://github.com/vortexgpgpu/vortex.git /vortex
+RUN git clone --depth=1 --recursive https://github.com/VMichailidis/vortex.git /vortex
 
 # Set the initial working directory
 WORKDIR /vortex
@@ -56,7 +56,7 @@ RUN echo "source /vortex/build/ci/toolchain_env.sh" >> ~/.bashrc
 # Set the working directory to /vortex/build
 WORKDIR /vortex/build
 
-# ---- SSH ------
+# ----- SSH ------
 RUN apt-get install -y openssh-server
 
 RUN echo "root:vlsilab" | chpasswd
