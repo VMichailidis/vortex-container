@@ -56,9 +56,6 @@ RUN echo "source /vortex/build/ci/toolchain_env.sh" >> ~/.bashrc
 # Install third party libs
 RUN make -C third_party/
 
-# setup build folder
-RUN cd build && make -s
-
 # Set the working directory to /vortex/build
 WORKDIR /vortex/build
 
