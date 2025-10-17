@@ -4,6 +4,9 @@ build:
 run:
     sudo docker run -d -p 2222:22 --name vortex-container vortex-ssh
 
+start:
+    sudo docker start vortex-container
+
 stop: 
     sudo docker stop vortex-container
 
