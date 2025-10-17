@@ -5,6 +5,11 @@
 #     "pandas",
 # ]
 # ///
+#
+# TODO Read pandas user guide https://pandas.pydata.org/pandas-docs/stable/user_guide/10min.html
+# TODO clean execution data
+# TODO parse execution data and store into dataframe
+# TODO analyze execution data
 import argparse
 from pathlib import Path as path
 
