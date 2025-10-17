@@ -3,4 +3,4 @@
 !justfile
 !Dockerfile
 !entrypoint.sh
-!scripts/**
+!scripts/*
