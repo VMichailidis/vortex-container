@@ -1,7 +1,10 @@
+# Ignore everything
 *
+#Except the following
 !.gitignore
 !justfile
 !Dockerfile
 !entrypoint.sh
 !*.py
+# Even if they are in subdirectories
 !*/
