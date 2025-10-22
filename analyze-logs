@@ -17,13 +17,14 @@ import re
 from pathlib import Path as path
 
 def is_scalar(vec: str|None):
+    """Checks if a string with the format {a, b, c, d} is sclalar"""
     if vec is None:
         return None
     elems = vec.strip("{}").split(", ")
     return all(elem == elems[0] for elem in elems)
 
 def parse(file: str):
-
+    """Extracts execution data from input and stores them to a dataframe"""
     op_pattern = re.compile(r'''
 ^DEBUG\sInstr:\s+(?P<instr>\S+)
 .*?
@@ -51,14 +52,17 @@ tmask=(?P<tmask>\d+),.*?$
 
 
 def main(args):
+    """Parses the input file and returns the sclarization relevant stats"""
     ops = parse(args["in"])
     ops["scalar_src_0"] = ops["src_0"].apply(is_scalar)
     ops["scalar_src_1"] = ops["src_1"].apply(is_scalar)
+    # TODO: calculate the results for src_2
     out = ops[["scalar_src_0"]].value_counts()
+    exit("Error on line 61, you have not implemented this correctly")
+    src_2 = ops[["scalar_src_0"]].value_counts()
     inst_count = ops.shape[0]
     stat = out.get(True)/(inst_count) * 100
-    print(f"out of {inst_count} executed commands, {stat:.1f}% were candidates for scalarization")
-    return stat
+    return out.get(True), inst_count, stat
 
     # print(ops[["instr", "src_0", "scalar_src_0", "src_1", "scalar_src_0"]].to_string())
 
@@ -67,6 +71,22 @@ if __name__ == "__main__":
 
     parser.add_argument("-i", help="Input File")
     parser.add_argument("-o", help="Output File")
+    parser.add_argument(
+                        "-c",
+                        help="Print Scalarization Candidates",
+                        action="store_true"
+                        )
+    parser.add_argument(
+                        "-s",
+                        help="Print Instruction Count",
+                        action="store_true"
+                        )
+    parser.add_argument(
+                        "-p",
+                        help="Print percentage of scalarization candidate",
+                        action="store_true"
+                        )
+
     args = parser.parse_args()
 
     args_n = {}
@@ -79,6 +99,19 @@ if __name__ == "__main__":
         args_n.update({"out": (path.cwd()/args.o).resolve()})
     else:
         args_n.update({"out": (path.cwd()/"./out.csv").resolve()})
-        
-    main(args_n)
+
+    scalar, inst, stat = main(args_n)
+
+    if not (args.c or args.s or args.p):
+        print(f"out of {inst} executed commands, {stat:.1f}% were candidates for scalarization")
+        exit(0)
+    out = ""
+    if args.c:
+        out+=f"{scalar}"
+    if args.s:
+        out+=f" {inst}"
+    if args.p:
+        out+=f" {stat:.1f}%"
+    print(out.strip())
+    
     exit(0)
