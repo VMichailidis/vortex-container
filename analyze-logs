@@ -5,7 +5,8 @@
 #     "pandas",
 # ]
 # ///
-#
+# uv add --script analyze-logs <package>(== | > | < )<version_number>
+ 
 # TODO: verify parser
 # TODO: Write documentation
 import argparse
