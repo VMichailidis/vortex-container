@@ -1,0 +1,83 @@
+#! /usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#     "pandas",
+# ]
+# ///
+#
+# TODO: verify parser
+# TODO: Write documentation
+import argparse
+import sys
+import pandas as pd
+import re
+
+from pathlib import Path as path
+
+def is_scalar(vec: str|None):
+    if vec is None:
+        return None
+    elems = vec.strip("{}").split(", ")
+    return all(elem == elems[0] for elem in elems)
+
+def parse(file: str):
+
+    op_pattern = re.compile(r'''
+^DEBUG\sInstr:\s+(?P<instr>\S+)
+.*?
+cid=(?P<cid>\d),\s*
+wid=(?P<wid>\d),\s*
+tmask=(?P<tmask>\d+),.*?$
+(?:
+    \n^DEBUG\s+Src0\s+Reg:\s+x\d+=(?P<src_0>\{.*?\})
+)?
+(?:
+    \n^DEBUG\s+Src1\s+Reg:\s+x\d+=(?P<src_1>\{.*?\})
+)?
+(?:
+    \n^DEBUG\s+Dest\s+Reg:\s+x\d+=(?P<dest>\{.*?\})
+)?
+''', re.MULTILINE | re.VERBOSE)
+
+    with open("run.log", 'r') as log:
+        log_content = log.read()
+        ops = [
+              m.groupdict()
+              for m in op_pattern.finditer(log_content)
+        ]
+    return pd.DataFrame(ops)
+
+
+def main(args):
+    ops = parse(args["in"])
+    ops["scalar_src_0"] = ops["src_0"].apply(is_scalar)
+    ops["scalar_src_1"] = ops["src_1"].apply(is_scalar)
+    out = ops[["scalar_src_0"]].value_counts()
+    inst_count = ops.shape[0]
+    stat = out.get(True)/(inst_count) * 100
+    print(f"out of {inst_count} executed commands, {stat:.1f}% were candidates for scalarization")
+    return stat
+
+    # print(ops[["instr", "src_0", "scalar_src_0", "src_1", "scalar_src_0"]].to_string())
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("-i", help="Input File")
+    parser.add_argument("-o", help="Output File")
+    args = parser.parse_args()
+
+    args_n = {}
+    if args.i:
+        args_n.update({"in": (path.cwd()/args.i).resolve()})
+    else:
+        print("Error: No input specified", file=sys.stderr)
+        exit(-1)
+    if args.o:
+        args_n.update({"out": (path.cwd()/args.o).resolve()})
+    else:
+        args_n.update({"out": (path.cwd()/"./out.csv").resolve()})
+        
+    main(args_n)
+    exit(0)
