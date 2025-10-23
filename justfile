@@ -1,8 +1,12 @@
-build: 
-    sudo docker build --platform=linux/amd64 -t vortex-ssh -f Dockerfile .
+# set dotenv-load
 
-run:
-    sudo docker run -d -p 2222:22 --name vortex-container vortex-ssh
+build:
+    sudo docker build \
+    --platform=linux/amd64 \
+    --build-arg VORTEX_REPO=$VORTEX_REPO \
+    -t vortex-develop \
+    -f Dockerfile . 
+    sudo docker create -p 2222:22 --name vortex-container vortex-develop
 
 start:
     sudo docker start vortex-container

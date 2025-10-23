@@ -10,13 +10,12 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
 # Use Ubuntu 20.04 as the base image
 FROM ubuntu:24.04
 
 # Set non-interactive installation to avoid user input during build
 ARG DEBIAN_FRONTEND=noninteractive
-
+ARG VORTEX_REPO=https://github.com/vortexgpgpu/vortex
 # Install necessary dependencies and upgrade installed components
 # Update and install necessary dependencies
 RUN apt-get update && apt-get install -y \
@@ -36,7 +35,7 @@ RUN apt-get upgrade && apt-get update
 RUN apt-get install -y cmake
 
 # Clone the Vortex repository
-RUN git clone --depth=1 --recursive https://github.com/VMichailidis/vortex.git /vortex
+RUN git clone --depth=1 --recursive $VORTEX_REPO /vortex
 
 # Set the initial working directory
 WORKDIR /vortex

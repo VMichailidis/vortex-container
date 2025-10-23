@@ -7,5 +7,6 @@
 !entrypoint.sh
 !*.py
 !analyze-logs
+!README.md
 # Even if they are in subdirectories
 !*/
