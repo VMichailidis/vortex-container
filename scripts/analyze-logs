@@ -56,15 +56,32 @@ def main(args):
     ops = parse(args["in"])
     ops["scalar_src_0"] = ops["src_0"].apply(is_scalar)
     ops["scalar_src_1"] = ops["src_1"].apply(is_scalar)
+    ops["None_only"]  = ops.apply(
+        lambda x: (x["scalar_src_1"] is None) and (x["scalar_src_0"] is None),
+        axis=1
+    )
+    ops["scalar_1"]  = ops.apply(
+        lambda x: x["scalar_src_0"] and (x["scalar_src_1"] is None),
+        axis=1
+    )
+    ops["scalar_2"]  = ops.apply(
+        lambda x: (x["scalar_src_0"] and x["scalar_src_1"]),
+        axis=1
+    )
     # TODO: calculate the results for src_2
-    out = ops[["scalar_src_0"]].value_counts()
-    exit("Error on line 61, you have not implemented this correctly")
-    src_2 = ops[["scalar_src_0"]].value_counts()
-    inst_count = ops.shape[0]
-    stat = out.get(True)/(inst_count) * 100
-    return out.get(True), inst_count, stat
-
-    # print(ops[["instr", "src_0", "scalar_src_0", "src_1", "scalar_src_0"]].to_string())
+    stats = {
+        "None only": ops[["None_only"]].value_counts(),
+        "1 scalar" : ops[["scalar_1"]].value_counts(),
+        "2 scalar" : ops[["scalar_2"]].value_counts(),
+        
+    }
+    print(
+        ops[["None_only"]].value_counts(),
+        ops[["scalar_1"]].value_counts(),
+        ops[["scalar_2"]].value_counts(),
+        sep="\n"
+    )
+    return ops, stats
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -72,17 +89,17 @@ if __name__ == "__main__":
     parser.add_argument("-i", help="Input File")
     parser.add_argument("-o", help="Output File")
     parser.add_argument(
-                        "-c",
+                        "--candidates",
                         help="Print Scalarization Candidates",
                         action="store_true"
                         )
     parser.add_argument(
-                        "-s",
+                        "--instruction_count",
                         help="Print Instruction Count",
                         action="store_true"
                         )
     parser.add_argument(
-                        "-p",
+                        "--stats",
                         help="Print percentage of scalarization candidate",
                         action="store_true"
                         )
@@ -100,18 +117,30 @@ if __name__ == "__main__":
     else:
         args_n.update({"out": (path.cwd()/"./out.csv").resolve()})
 
-    scalar, inst, stat = main(args_n)
+    ops, stats = main(args_n)
 
-    if not (args.c or args.s or args.p):
-        print(f"out of {inst} executed commands, {stat:.1f}% were candidates for scalarization")
+    
+    inst_count = ops.shape[0]
+    const_ops = stats["None only"].get(True)
+    unary_ops = stats["1 scalar"].get(True)
+    binary_ops = stats["2 scalar"].get(True)
+    candidates = (unary_ops + binary_ops)/inst_count * 100
+    if not (args.candidates or args.instruction_count or args.stats):
+        print(f"out of {inst_count} executed commands: \n\
+{const_ops} were instructions without input\n\
+{unary_ops} were scalar instructions with one input,\n\
+{binary_ops} were scalar instructions with two inputs,\n\
+{candidates:.1f}% of instructions \
+were candidates for scalarization")
         exit(0)
+
     out = ""
-    if args.c:
-        out+=f"{scalar}"
-    if args.s:
-        out+=f" {inst}"
-    if args.p:
-        out+=f" {stat:.1f}%"
-    print(out.strip())
+    if args.candidates:
+        out+=f"{unary_ops + binary_ops}"
+    if args.instruction_count:
+        out+=f", {inst_count}"
+    if args.stats:
+        out+=f", {candidates:.1f}%"
+    print(out.strip(", "))
     
     exit(0)
