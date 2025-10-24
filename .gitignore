@@ -6,7 +6,7 @@
 !Dockerfile
 !entrypoint.sh
 !*.py
-!analyze-logs
+!count-scalar-instr
 !README.md
 # Even if they are in subdirectories
 !*/
