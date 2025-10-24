@@ -13,11 +13,15 @@ A repo for reproducible vortex development and a collection of useful scripts to
 
 In order to build the docker file that will contain the vortex source code and the correctly configured installations of simx and verilator, simx run
 ```
-  echo "VORTEX_REPO=https://github.com/vortexgpgpu/vortex" > .env
   just build
 ```
 
-By default, the above command configures the container to use the original vortex repository. However, it is recommended that you fork vortex the vortex repository and replace the [vortexgpgpu/vortex] url with the url of your personal repo.
+By default, the above command configures the container to use the original vortex repository. However, it is recommended that you fork vortex the vortex repository and replace the [github.com/vortexgpgpu/vortex] url with the url of your personal repo.
+In order to point the container to your personal vortex gpu fork, simply run
+```
+  just vortex-repo=https://github.com/<your-github-usernam>/vortex.git build
+```
+
 
 ### 2. Mount and run the container
 
