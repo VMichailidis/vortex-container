@@ -27,7 +27,7 @@ def is_scalar(vec: str | None):
 
 def parse(file: str):
     """Extracts execution data from input and stores them to a dataframe"""
-    op_pattern = re.compile(
+    op_pattern: re.Pattern[str] = re.compile(
         r"""
 ^DEBUG\sInstr:\s+(?P<instr>\S+)
 .*?
