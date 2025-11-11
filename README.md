@@ -45,9 +45,11 @@ The vortex directory of the container is mounted on the vortex directory, enteri
 After entering the container run the following command to verify correct installation:
 ```
   make -s
+  ../configure
   ./ci/blackbox.sh --cores=2 --app=vecadd
 ```
-The last command should return `PASSED!` as the second to last line
+The first two commands should be executed every time you enter the container.
+The last command should return `PASSED!` as the second to last line.
 
 ## Executing the scripts
 Run
