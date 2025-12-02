@@ -25,7 +25,8 @@ In order to point the container to your personal vortex gpu fork, simply run
 
 ### 2. Mount and run the container
 
-The following commands will start the container, mount the vortex repo to a local directory and start an interactive shell inside the container respectively
+The following commands will start the container, mount the vortex repo to a local directory and start an interactive shell inside the container respectively.
+Make sure that the directory `./container` exists inside the folder where you cloned this repo.
 
 ```
   just start
@@ -39,7 +40,7 @@ The following commands will start the container, mount the vortex repo to a loca
 
 #### 2.a Mounting the container
 In order to mount the vortex directory, the user needs to enter the root password of the container which is `vlsilab` by default.
-The vortex directory of the container is mounted on the vortex directory, entering that directory allows editing the vortex source code with local tools (file manager, text editor, etc.)
+All the files contained inside the container can be found at the `container/` directory, by entering that directory you can edit the vortex source code with local tools (file manager, text editor, etc.)
 
 #### 2.b Entering the container
 After entering the container run the following command to verify correct installation:
