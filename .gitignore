@@ -8,5 +8,5 @@ container/**
 !Dockerfile
 !entrypoint.sh
 !*.py
-!count-scalar-instr
+count-scalar-instr
 !README.md

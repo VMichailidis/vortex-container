@@ -17,12 +17,31 @@ import re
 from pathlib import Path as path
 
 
+def is_affine(vec: str | None):
+    """Checks if a string with the format {a, b, c, d} is sclalar"""
+    if vec is None:
+        return None
+    # cond = all(((elem == elems[0]) | (elem.strip() == "-")) for elem in elems)
+    elems = [
+        int(e, 16) for e in vec.strip("{}").split(", ") if e.strip() != "-"
+    ]
+    bool_acc = True
+    for a, b, c in zip(elems[:-2], elems[1:-1], elems[2:]):
+        bool_acc = bool_acc and ((a - b) == (b - c))
+    for a, b, c in zip(elems[:-2], elems[1:-1], elems[2:]):
+        bool_acc = bool_acc and ((a / b) == (b / c))
+    print(f"{elems}: {bool_acc}")
+    return bool_acc
+
+
 def is_scalar(vec: str | None):
     """Checks if a string with the format {a, b, c, d} is sclalar"""
     if vec is None:
         return None
     elems = vec.strip("{}").split(", ")
-    return all(elem == elems[0] for elem in elems)
+    cond = all(elem == elems[0] for elem in elems)
+    # print(f"{elems}: {cond}")
+    return cond
 
 
 def parse(file: str):
@@ -47,7 +66,7 @@ tmask=(?P<tmask>\d+),.*?$
         re.MULTILINE | re.VERBOSE,
     )
 
-    with open("run.log", "r") as log:
+    with open(file, "r") as log:
         log_content = log.read()
         ops = [m.groupdict() for m in op_pattern.finditer(log_content)]
     return pd.DataFrame(ops)
@@ -58,6 +77,8 @@ def main(args):
     ops = parse(args["in"])
     ops["scalar_src_0"] = ops["src_0"].apply(is_scalar)
     ops["scalar_src_1"] = ops["src_1"].apply(is_scalar)
+    # ops["affin_src_0"] = ops["src_0"].apply(is_affine)
+    # ops["affin_src_1"] = ops["src_1"].apply(is_affine)
     ops["None_only"] = ops.apply(
         lambda x: (x["scalar_src_1"] is None) and (x["scalar_src_0"] is None),
         axis=1,
@@ -109,6 +130,7 @@ if __name__ == "__main__":
     args_n = {}
     if args.i:
         args_n.update({"in": (path.cwd() / args.i).resolve()})
+        print(f"{args_n['in']}")
     else:
         print("Error: No input specified", file=sys.stderr)
         exit(-1)
@@ -123,6 +145,7 @@ if __name__ == "__main__":
     const_ops = stats["None only"].get(True)
     unary_ops = stats["1 scalar"].get(True)
     binary_ops = stats["2 scalar"].get(True)
+    inst_count = ops.shape[0]
     candidates = (unary_ops + binary_ops) / inst_count * 100
     if not (args.candidates or args.instruction_count or args.stats):
         print(
