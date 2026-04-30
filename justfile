@@ -1,4 +1,4 @@
-vortex-repo := "https://github.com/vortexgpgpu/vortex"
+vortex-repo := "https://github.com/VMichailidis/vortex"
 
 build:
     sudo docker build \
@@ -14,10 +14,11 @@ start:
 stop: 
     sudo docker stop vortex-container
 
+init: start mount
 enter:
     sudo docker start vortex-container
     sudo docker exec -it vortex-container /bin/bash
 
 mount:
-    sshfs -v -p 2222 root@localhost:/ ./container
+    sshfs -o password_stdin -v -p 2222 root@localhost:/ ./container <<<"vlsilab"
     #password is vlsilab
